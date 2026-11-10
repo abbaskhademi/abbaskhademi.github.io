@@ -1,0 +1,4 @@
+Abbas Khademi academic website — version 17
+Build: 2026-11-10
+Includes: minimalist turquoise navigation (without CV tab or dropdowns); separate journal + volume + pages lines; Convexity Zoo blog; portrait.
+If you can read this file at https://abbaskhademi.github.io/version.txt then GitHub Pages is serving the updated upload.

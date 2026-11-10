@@ -1,0 +1,19 @@
+UPDATE YOUR EXISTING GITHUB PAGES SITE (VERSION 17)
+
+DO NOT UPLOAD THE ZIP FILE TO GITHUB. EXTRACT IT FIRST.
+
+1. On your computer, unzip Abbas-Khademi-Website-v17-REPLACE-FILES.zip.
+2. Open https://github.com/abbaskhademi/abbaskhademi.github.io
+3. Confirm the branch is MAIN.
+4. Click Add file > Upload files.
+5. Drag ALL THE CONTENTS of the extracted folder (not the outer folder, not the ZIP): index.html, publications.html, other HTML pages, assets folder, and version.txt.
+6. The file list MUST include changes to index.html, publications.html, and assets/styles.css. If it only shows a .zip file, STOP.
+7. Commit changes to main.
+8. Open Settings > Pages, ensure main / (root), and wait for a successful deployment in Actions.
+9. Open https://abbaskhademi.github.io/deployment-check.html (should say Website version 17).
+10. Open https://abbaskhademi.github.io/publications.html?v=17 or use a private browser window.
+
+CHECK NAV: no CV tab, no submenus.
+CHECK PUBLICATIONS: published titles and authors, followed by journal name, bold volume, issue and page range.
+
+If deployment-check.html does not load, your new website files were not yet deployed from main/(root).
