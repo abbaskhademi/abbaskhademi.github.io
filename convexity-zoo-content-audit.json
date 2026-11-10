@@ -1,0 +1,35 @@
+{
+  "entries": 143,
+  "definitions": 47,
+  "properties": 96,
+  "chapters": {
+    "Foundations of convexity": {
+      "Definition": 5,
+      "Property": 10
+    },
+    "Generalized convexity": {
+      "Definition": 11,
+      "Property": 21
+    },
+    "Weak convexity": {
+      "Definition": 2,
+      "Property": 6
+    },
+    "Geometric generalizations": {
+      "Definition": 11,
+      "Property": 24
+    },
+    "Regularity conditions": {
+      "Definition": 8,
+      "Property": 11
+    },
+    "Partial and pointwise convexity": {
+      "Definition": 6,
+      "Property": 5
+    },
+    "Structured function classes": {
+      "Definition": 4,
+      "Property": 19
+    }
+  }
+}
