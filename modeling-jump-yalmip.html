@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><!-- Standalone MIQP blog page -->
+<meta content="v18-miqp-blog" name="website-build"/>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="Abbas Khademi" name="author"/>
+<meta content="JuMP in Julia vs YALMIP in MATLAB: continuous, integer, and binary variables, and a complete MIQP example." name="description"/>
+<meta content="#007f86" name="theme-color"/>
+<title>JuMP vs YALMIP: MIQP Tutorial | Abbas Khademi</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Lato:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="assets/styles.css?v=17" rel="stylesheet"/>
+<script defer="" src="assets/site.js?v=17"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><style>
+/* JuMP / YALMIP post — styles isolated to the new page */
+.page-miqp .content { max-width:800px; }
+.miqp-meta { font:.76rem/1.4 Inter, sans-serif; text-transform:uppercase; letter-spacing:.09em; color:var(--accent); font-weight:700; margin:0 0 10px; }
+.miqp-toc { display:flex; flex-wrap:wrap; gap:8px 13px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:13px 0; margin:26px 0; font-size:.86rem; }
+.miqp-toc strong { color:var(--ink); margin-right:7px; }
+.miqp-toc a { text-decoration:none; }
+.miqp-math { background:#f7fcfc; border:1px solid var(--border); padding:20px 12px; overflow-x:auto; border-radius:5px; margin:18px 0; text-align:center; }
+.miqp-table-wrap { overflow-x:auto; margin:14px 0; }
+.miqp-table { border-collapse:collapse; width:100%; font-size:.89rem; line-height:1.5; }
+.miqp-table th,.miqp-table td { border-bottom:1px solid var(--border); padding:12px 10px; text-align:left; vertical-align:top; }
+.miqp-table th { background:#f0f9f8; font:700 .85rem Inter,sans-serif; white-space:nowrap; color:#14565b; }
+.miqp-table code { font-size:.84rem; }
+.miqp-code-head { display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:11px 15px; border:1px solid #d5e9e7; border-bottom:none; background:#edf7f6; border-radius:7px 7px 0 0; font:600 .83rem Inter,sans-serif; }
+.miqp-code-head span { margin-right:auto; }
+.miqp-code-head a { font-size:.79rem; text-decoration:none; }
+.miqp-copy { border:1px solid #9bcfca; background:#fff; color:var(--accent-deep); border-radius:4px; padding:6px 10px; font:600 .78rem Inter,sans-serif; cursor:pointer; }
+.miqp-copy:hover { background:#dff3f0; }
+.miqp-code { margin:0 0 23px; padding:19px; max-height:690px; overflow:auto; background:#132e34; color:#e9f7f6; border:1px solid #132e34; border-radius:0 0 7px 7px; font:13px/1.65 'SFMono-Regular', Consolas, 'Liberation Mono',monospace; tab-size:4; white-space:pre; }
+.miqp-code code { color:inherit; background:none; font:inherit; }
+.miqp-solution { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border:1px solid var(--border); margin:18px 0 22px; background:#f3faf9; border-radius:7px; overflow:hidden; }
+.miqp-solution>div { display:grid; gap:1px; padding:16px 15px; border-right:1px solid var(--border); }
+.miqp-solution>div:last-child { border:0; }
+.miqp-solution span { color:var(--muted); font:.78rem Inter,sans-serif; }
+.miqp-solution strong { color:var(--accent-deep); font:700 1.5rem Inter,sans-serif; }
+.miqp-references li { margin:7px 0; }
+.miqp-return { margin-top:32px; font-weight:600; }
+.miqp-blog-entry { padding:9px 0 28px; border-bottom:1px solid var(--border); }
+.miqp-blog-entry h2 { margin-top:10px; }
+.miqp-readmore { display:inline-block; font-weight:700; text-decoration:none; margin-top:2px; }
+@media(max-width:650px){ .miqp-toc{gap:7px 14px;} .miqp-solution{grid-template-columns:repeat(2,minmax(0,1fr));} .miqp-solution>div:nth-child(2){border-right:none;} .miqp-solution>div:nth-child(-n+2){border-bottom:1px solid var(--border);} .miqp-code {font-size:12px; padding:13px;} .miqp-table th,.miqp-table td {padding:8px;} }
+
+</style>
+</head><body class="page-blog page-miqp">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="header-inner"><a class="site-title" href="index.html">Abbas Khademi</a><nav aria-label="Main navigation" class="nav"><a href="index.html">Home</a>
+<a href="research.html">Research</a>
+<a href="publications.html">Publications</a>
+<a href="teaching.html">Teaching</a>
+<a href="academic-experience.html">Academic Experience</a>
+<a aria-current="page" href="blog.html">Blog</a>
+<a href="links.html">Links</a></nav></div></header>
+<div class="shell"><aside aria-label="Profile" class="sidebar"><div class="profile">
+<div class="profile-photo"><img alt="Abbas Khademi profile photograph" decoding="async" height="400" loading="eager" onerror="this.onerror=null;this.src='assets/avatar.svg';" src="assets/profile.jpg" width="400"/></div>
+<div class="profile-summary"><h2>Abbas Khademi</h2><p class="role">Postdoctoral Researcher &amp; IVADO Fellow<br/>HEC Montréal</p></div>
+<div class="profile-section"><h3>Contact</h3><ul><li><a href="mailto:abbas.khademi@hec.ca">abbas.khademi@hec.ca</a></li></ul></div>
+<div class="profile-section"><h3>Academic profiles</h3><ul>
+<li><a href="https://github.com/abbaskhademi" rel="noopener noreferrer" target="_blank">GitHub</a></li>
+<li><a href="https://scholar.google.com/citations?user=eXa7qx0AAAAJ&amp;hl=en" rel="noopener noreferrer" target="_blank">Google Scholar</a></li>
+<li><a href="https://orcid.org/0000-0002-8276-6821" rel="noopener noreferrer" target="_blank">ORCID</a></li>
+<li><a href="https://www.linkedin.com/in/abbaskhademi" rel="noopener noreferrer" target="_blank">LinkedIn</a></li>
+<li><a href="https://www.researchgate.net/profile/Abbas-Khademi" rel="noopener noreferrer" target="_blank">ResearchGate</a></li>
+<li><a href="https://optimization-online.org/author/abbaskhademi/" rel="noopener noreferrer" target="_blank">Optimization Online</a></li>
+<li><a href="https://sites.google.com/view/abbaskhademi/" rel="noopener noreferrer" target="_blank">Original Google Site</a></li>
+</ul></div>
+</div></aside><main class="content" id="main" tabindex="-1">
+<p class="miqp-meta">Optimization modeling · Julia / MATLAB · November 2026</p>
+<h1>Modeling Optimization Problems in JuMP and YALMIP</h1>
+<p class="lead">A practical comparison of Julia/JuMP and MATLAB/YALMIP: continuous, integer, and binary decision variables, followed by the same mixed-integer quadratic programming (MIQP) model in both languages.</p>
+<div aria-label="On this page" class="miqp-toc"><strong>On this page</strong><a href="#decision-variables">Variable types</a><a href="#mathematical-model">Mathematical model</a><a href="#jump-code">Julia / JuMP</a><a href="#yalmip-code">MATLAB / YALMIP</a><a href="#solution">Check the answer</a><a href="#references">References</a></div>
+<section id="decision-variables"><h2>1. Types of decision variables</h2>
+<p>The modeling language controls the mathematical model; a compatible solver carries out the optimization.</p>
+<div class="miqp-table-wrap"><table class="miqp-table"><thead><tr><th>Variable type</th><th>Domain</th><th>JuMP (Julia)</th><th>YALMIP (MATLAB)</th></tr></thead><tbody>
+<tr><td>Continuous</td><td>\(x \in \mathbb{R}\)</td><td><code>@variable(model, x)</code></td><td><code>x = sdpvar(1,1);</code></td></tr>
+<tr><td>Nonnegative continuous</td><td>\(x \ge 0\)</td><td><code>@variable(model, x &gt;= 0)</code></td><td><code>x = sdpvar(1,1);</code><br/><code>Constraints = [x &gt;= 0];</code></td></tr>
+<tr><td>Integer</td><td>\(y \in \mathbb{Z}\)</td><td><code>@variable(model, y, Int)</code></td><td><code>y = intvar(1,1);</code></td></tr>
+<tr><td>Binary</td><td>\(z \in \{0,1\}\)</td><td><code>@variable(model, z, Bin)</code></td><td><code>z = binvar(1,1);</code></td></tr>
+</tbody></table></div>
+<p class="note">You can define vectors and matrices of all three types using indexed JuMP declarations, or by supplying dimensions to <code>sdpvar</code>, <code>intvar</code>, and <code>binvar</code> in YALMIP.</p></section>
+<section id="mathematical-model"><h2>2. A quadratic objective with linear constraints</h2>
+<p>Consider the following <strong>convex mixed-integer quadratic program (MIQP)</strong>. The continuous variable <code>x</code>, integer variable <code>y</code>, and binary variable <code>z</code> interact through linear constraints. The objective is quadratic in <code>x</code> and <code>y</code>.</p>
+<div class="miqp-math">\[\begin{aligned}
+\min_{x,y,z}\quad &amp; (x-2)^2+(y-3)^2+2z\\
+\text{subject to}\quad &amp; x+y+z \ge 4,\\
+&amp; 2x+y \le 7,\\
+&amp; x \le 5z,\\
+&amp; 0 \le x \le 5,\quad x\in\mathbb{R},\\
+&amp; 0 \le y \le 4,\quad y\in\mathbb{Z},\\
+&amp; z\in\{0,1\}.
+\end{aligned}\]</div>
+<p>The linking constraint <code>x ≤ 5z</code> forces <code>x = 0</code> whenever the binary variable is zero. Although the continuous quadratic objective is convex, the feasible set is nonconvex because of the integrality restrictions.</p></section>
+<section id="jump-code"><h2>3. Implementation in Julia / JuMP</h2>
+<p>Install <a href="https://jump.dev/JuMP.jl/stable/" rel="noopener noreferrer" target="_blank">JuMP</a> and <a href="https://jump.dev/JuMP.jl/stable/packages/Gurobi/" rel="noopener noreferrer" target="_blank">Gurobi.jl</a>. The Gurobi optimizer itself must also be properly installed and licensed.</p>
+<div class="miqp-code-head"><span>Julia / JuMP</span><a download="" href="examples/miqp_jump.jl">Download source ↓</a><button aria-label="Copy Julia / JuMP code" class="miqp-copy" type="button">Copy code</button></div><pre class="miqp-code"><code class="language-julia"># Install once in Julia:
+# import Pkg; Pkg.add(["JuMP", "Gurobi", "MathOptInterface"])
+
+using JuMP
+using Gurobi
+import MathOptInterface as MOI
+
+# Create the model and choose an MIQP-capable solver.
+model = Model(Gurobi.Optimizer)
+set_silent(model)
+
+# Decision variables
+@variable(model, 0 &lt;= x &lt;= 5)       # Continuous
+@variable(model, 0 &lt;= y &lt;= 4, Int)  # Integer
+@variable(model, z, Bin)           # Binary
+
+# Quadratic objective
+@objective(model, Min, (x - 2)^2 + (y - 3)^2 + 2*z)
+
+# Linear constraints
+@constraint(model, x + y + z &gt;= 4)
+@constraint(model, 2*x + y &lt;= 7)
+@constraint(model, x &lt;= 5*z)
+
+optimize!(model)
+
+if termination_status(model) == MOI.OPTIMAL
+    println("x = ", value(x))
+    println("y = ", value(y))
+    println("z = ", value(z))
+    println("Optimal objective = ", objective_value(model))
+else
+    println("Termination status: ", termination_status(model))
+end
+</code></pre>
+<p class="note">JuMP uses <code>@variable</code>, <code>@constraint</code>, and <code>@objective</code> to construct the model, then <code>optimize!</code> to solve it.</p></section>
+<section id="yalmip-code"><h2>4. The same implementation in MATLAB / YALMIP</h2>
+<p>Install <a href="https://yalmip.github.io/tutorial/basics/" rel="noopener noreferrer" target="_blank">YALMIP</a> and ensure a compatible MIQP solver such as Gurobi is available in MATLAB.</p>
+<div class="miqp-code-head"><span>MATLAB / YALMIP</span><a download="" href="examples/miqp_yalmip.m">Download source ↓</a><button aria-label="Copy MATLAB / YALMIP code" class="miqp-copy" type="button">Copy code</button></div><pre class="miqp-code"><code class="language-matlab">% Requires MATLAB + YALMIP + an installed, licensed MIQP solver.
+% Example solver: Gurobi.
+yalmip('clear');
+
+% Decision variables
+x = sdpvar(1,1);  % Continuous
+y = intvar(1,1);  % Integer
+z = binvar(1,1);  % Binary
+
+% Linear constraints, including variable bounds
+Constraints = [x &gt;= 0, x &lt;= 5, ...
+               y &gt;= 0, y &lt;= 4, ...
+               x + y + z &gt;= 4, ...
+               2*x + y &lt;= 7, ...
+               x &lt;= 5*z];
+
+% Quadratic objective
+Objective = (x - 2)^2 + (y - 3)^2 + 2*z;
+
+options = sdpsettings('solver', 'gurobi', 'verbose', 0);
+diagnostics = optimize(Constraints, Objective, options);
+
+if diagnostics.problem == 0
+    fprintf('x = %.6f\n', value(x));
+    fprintf('y = %.6f\n', value(y));
+    fprintf('z = %.6f\n', value(z));
+    fprintf('Optimal objective = %.6f\n', value(Objective));
+else
+    fprintf('Solver issue: %s\n', diagnostics.info);
+end
+</code></pre>
+<p class="note">YALMIP represents the problem with <code>Constraints</code> and <code>Objective</code>, calls <code>optimize</code>, and reads the numerical solution using <code>value</code>.</p></section>
+<section id="solution"><h2>5. Expected optimal solution</h2>
+<div class="miqp-solution"><div><span>x*</span><strong>2</strong></div><div><span>y*</span><strong>3</strong></div><div><span>z*</span><strong>1</strong></div><div><span>Objective</span><strong>2</strong></div></div>
+<p>At \((x,y,z)=(2,3,1)\), all linear constraints hold and the objective is 2. For \(z=1\), both squared terms are nonnegative, so the objective cannot be below 2. For \(z=0\), the linking constraint gives \(x=0\), and the remaining constraints force \(y=4\), yielding objective 5. Therefore, the displayed solution is globally optimal.</p>
+<p class="note">This solution is verified analytically; the downloadable code has not been executed in a Julia or MATLAB runtime here. Small numerical differences (for example, 0.999999 instead of 1) can occur because of solver tolerances.</p>
+<h3>QP, MILP, and MIQP: what changes?</h3>
+<ul><li><strong>QP:</strong> Relax integer and binary restrictions, so all decision variables are continuous, with \(0\le z\le1\).</li><li><strong>MILP:</strong> Keep integer and binary restrictions, but use a linear objective.</li><li><strong>MIQP:</strong> Keep integer and binary restrictions with a quadratic objective and linear constraints—as in this example.</li></ul>
+<p class="note"><strong>Solver note:</strong> MATLAB's <code>quadprog</code> is for continuous quadratic programming and does not directly enforce integer/binary variables. Likewise, a solver supporting LP, MIP, and QP separately is not necessarily an MIQP solver. Gurobi is used in both scripts for consistency.</p></section>
+<section id="references"><h2>6. Documentation and further reading</h2>
+<ul class="miqp-references">
+<li><a href="https://jump.dev/JuMP.jl/stable/manual/variables/" rel="noopener noreferrer" target="_blank">JuMP — Variables</a> (continuous, integer, and binary declarations).</li>
+<li><a href="https://jump.dev/JuMP.jl/stable/packages/Gurobi/" rel="noopener noreferrer" target="_blank">JuMP — Gurobi.jl solver interface</a>.</li>
+<li><a href="https://yalmip.github.io/tutorial/basics/" rel="noopener noreferrer" target="_blank">YALMIP — Getting started</a>.</li>
+<li><a href="https://yalmip.github.io/command/optimize/" rel="noopener noreferrer" target="_blank">YALMIP — optimize command</a>.</li>
+<li><a href="https://yalmip.github.io/solver/gurobi/" rel="noopener noreferrer" target="_blank">YALMIP — Gurobi support</a>.</li>
+</ul>
+<p class="note">Tutorial by Abbas Khademi · The model and code in this post are self-contained educational examples.</p></section>
+<p class="miqp-return"><a href="blog.html">← Back to Blog</a></p>
+</main></div>
+<footer class="site-footer"><div class="footer-inner"><span>© 2026 Abbas Khademi</span><span class="footer-quote">Mathematics is the music of reason • • •</span></div></footer>
+<script>
+// Copy code buttons on this article only
+
+document.addEventListener('click', async function(e) {
+  const btn=e.target.closest('.miqp-copy');
+  if(!btn) return;
+  const code=btn.parentElement.nextElementSibling?.querySelector('code')?.textContent;
+  if(!code) return;
+  try {
+    await navigator.clipboard.writeText(code);
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy code',1800);
+  } catch(err) { btn.textContent='Select code below'; }
+});
+
+</script>
+</body></html>
